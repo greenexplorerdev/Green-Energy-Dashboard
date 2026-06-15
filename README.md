@@ -1,21 +1,22 @@
 # ⚡ Green Energy Dashboard
 
-Dashboard interattiva per il monitoraggio di impianti energetici rinnovabili (inventati per sperimentare).
+Interactive dashboard for monitoring renewable energy systems (designed for experimentation).
 
 ## Features
-- Meteo in tempo reale per 3 città (API open-meteo)
-- Stima produzione solare basata su temperatura
-- Lista impianti con stato attivo/offline
-- Report energetico automatico
+- Real-time weather data for 3 cities (OpenMeteo API)
+- Temperature-based solar production estimate
+- List of systems with active/offline status
+- Automatic energy report
 
 ## Tech Stack
 - Vanilla JavaScript (ES6+)
 - Async/Await + Fetch API
-- Promise.all per fetch paralleli
+- Promise.all for parallel fetches
 - Tailwind CSS
 
 ## Live Demo
 [green-energy-dashboard.vercel.app](https://green-energy-dashboard.vercel.app)
 
-## Come eseguire
-Apri index.html in un browser. Non richiede build tools.
+## How to Run
+Open index.html in a browser. No build tools required.
+
