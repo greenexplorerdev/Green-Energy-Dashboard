@@ -1,4 +1,4 @@
-
+//plants
 const plants = [
   {
     id: 1,
@@ -11,7 +11,7 @@ const plants = [
   { id: 3, name: "Merano Hydro", capacity: 8000, active: true, city: "Merano" },
 ];
 
-
+//fetch data for dashboard
 async function getWeather(lat, lon, city) {
   try {
     const response = await fetch(
@@ -34,7 +34,7 @@ async function getWeather(lat, lon, city) {
   }
 }
 
-
+//solar production
 function estimateSolarProduction(temp, capacity) {
   let produzione = 0;
   if (temp > 20) {
@@ -45,10 +45,9 @@ function estimateSolarProduction(temp, capacity) {
   return produzione;
 }
 
-
+//create initial dashboard, first cards
 function renderWeather(data) {
   for (const cities of data) {
-    console.log(`questi sono i dati: ${data}`);
     const grid = document.getElementById("weather");
     const card = document.createElement("div");
     card.classList.add(
@@ -91,6 +90,7 @@ function renderWeather(data) {
   }
 }
 
+//Plant's card
 function renderPlants(plants) {
   const container = document.getElementById("plants");
   if (!container) return;
@@ -113,7 +113,7 @@ function renderPlants(plants) {
   });
 }
 
-
+//generate report
 async function generateReport(weatherData, plants) {
   const report = document.getElementById("report");
   if (!report) return;
@@ -123,8 +123,9 @@ async function generateReport(weatherData, plants) {
   const activePlants = plants.filter((p) => p.active);
   const totalCapacity = plants.reduce((sum, p) => sum + p.capacity, 0);
 
+  //total report
   report.innerHTML = `
-  <h3 class= "text-center font-bold">- 🔋 ENERGY REPORT 🔋gitt -</h3>
+  <h3 class= "text-center font-bold">- 🔋 ENERGY REPORT 🔋 -</h3>
   <p>Città: ${cities}</p>
   <p>Temperature monitorate: ${temperature}</p>
   <p>Impianti attivi: ${activePlants.length}/${plants.length} | ${activePlants.map((p) => p.name).join(", ")}</p>
@@ -132,7 +133,7 @@ async function generateReport(weatherData, plants) {
 `;
 }
 
-
+//primary function
 async function init() {
   try {
 
