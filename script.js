@@ -1,4 +1,4 @@
-// Dati impianti
+
 const plants = [
   {
     id: 1,
@@ -11,8 +11,6 @@ const plants = [
   { id: 3, name: "Merano Hydro", capacity: 8000, active: true, city: "Merano" },
 ];
 
-// TODO 1: Funzione getWeather(lat, lon, city)
-// Fetch meteo da open-meteo, ritorna { city, temp, wind }
 
 async function getWeather(lat, lon, city) {
   try {
@@ -36,10 +34,6 @@ async function getWeather(lat, lon, city) {
   }
 }
 
-// TODO 2: Funzione estimateSolarProduction(temp, capacity)
-// Formula: se temp > 20, produzione = capacity * (temp/30)
-// Se temp < 20, produzione = capacity * 0.2
-// Ritorna numero
 
 function estimateSolarProduction(temp, capacity) {
   let produzione = 0;
@@ -50,9 +44,7 @@ function estimateSolarProduction(temp, capacity) {
   }
   return produzione;
 }
-// TODO 3: Funzione renderWeather(data)
-// Prende array di 3 città, renderizza in #weather div
-// Card: città, temperatura, vento
+
 
 function renderWeather(data) {
   for (const cities of data) {
@@ -99,19 +91,12 @@ function renderWeather(data) {
   }
 }
 
-// TODO 4: Funzione renderPlants(plants)
-// Filtra plants per active=true
-// Renderizza in #plants div
-// Per ogni: nome, capacità, status badge
-
 function renderPlants(plants) {
   const container = document.getElementById("plants");
   if (!container) return;
 
-  // Svuota containerp.for
   container.innerHTML = "";
 
-  // Filtra impianti attivi
   const activePlants = plants.filter((p) => p.active);
 
   if (activePlants.length === 0) {
@@ -128,10 +113,6 @@ function renderPlants(plants) {
   });
 }
 
-// TODO 5: Funzione generateReport(weatherData, plants)
-// Crea report testuale con template literal
-// Includi: città, temperatura, impianti attivi, totale capacità
-// Renderizza in #report div
 
 async function generateReport(weatherData, plants) {
   const report = document.getElementById("report");
@@ -151,10 +132,10 @@ async function generateReport(weatherData, plants) {
 `;
 }
 
-// Main
+
 async function init() {
   try {
-    // Fetch meteo parallelo per 3 città
+
     const weatherData = await Promise.all([
       getWeather(46.49, 11.35, "Bolzano"),
       getWeather(46.07, 11.12, "Trento"),
