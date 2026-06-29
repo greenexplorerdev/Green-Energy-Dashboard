@@ -1,154 +1,145 @@
 //plants
-const plants = [
-  {
-    id: 1,
-    name: "Bolzano Solar",
-    capacity: 5000,
-    active: true,
-    city: "Bolzano",
-  },
-  { id: 2, name: "Trento Wind", capacity: 3000, active: false, city: "Trento" },
-  { id: 3, name: "Merano Hydro", capacity: 8000, active: true, city: "Merano" },
-];
+ const plants = [
+          { id: 1, name: "Bolzano Solar", capacity: 5000, active: true, city: "Bolzano" },
+          { id: 2, name: "Trento Wind", capacity: 3000, active: false, city: "Trento" },
+          { id: 3, name: "Merano Hydro", capacity: 8000, active: true, city: "Merano" },
+        ];
 
-//fetch data for dashboard
-async function getWeather(lat, lon, city) {
-  try {
-    const response = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m`,
-    );
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
+        // Fetch weather data
+        async function getWeather(lat, lon, city) {
+          try {
+            const response = await fetch(
+              `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m`,
+            );
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            const data = await response.json();
+            return {
+              city,
+              temp: data.current.temperature_2m,
+              wind: data.current.wind_speed_10m,
+            };
+          } catch (error) {
+            console.error(`Errore gestito: ${error.message}`);
+            return { city, temp: 0, wind: 0 }; // Fallback per non rompere il layout
+          }
+        }
 
-    const data = await response.json();
-    console.log(data);
+        // Solar production
+        function estimateSolarProduction(temp, capacity) {
+          let produzione = 0;
+          if (temp > 20) {
+            produzione = capacity * (temp / 30);
+          } else {
+            produzione = capacity * 0.2;
+          }
+          return produzione;
+        }
 
-    return {
-      city,
-      temp: data.current.temperature_2m,
-      wind: data.current.wind_speed_10m,
-    };
-  } catch (error) {
-    console.error(`errore gestito: ${error.message}`);
-  }
-}
+        // Render Card Weather
+        function renderWeather(data) {
+          const grid = document.getElementById("weather");
+          if (!grid) return;
+          
+          grid.innerHTML = ""; // Pulizia iniziale
 
-//solar production
-function estimateSolarProduction(temp, capacity) {
-  let produzione = 0;
-  if (temp > 20) {
-    produzione = capacity * (temp / 30);
-  } else {
-    produzione = capacity * 0.2;
-  }
-  return produzione;
-}
+          data.forEach((cityData) => {
+            const card = document.createElement("div");
+            // Classi responsive rimosse le larghezze fisse
+            card.classList.add(
+              "bg-white", "rounded-2xl", "shadow-lg", "p-6", "flex", "flex-col", "justify-between"
+            );
+            
+            const titleCard = document.createElement("h2");
+            titleCard.classList.add("text-xl", "font-bold", "text-center", "text-indigo-800", "mb-4");
+            titleCard.textContent = cityData.city;
+            card.appendChild(titleCard);
 
-//create initial dashboard, first cards
-function renderWeather(data) {
-  for (const cities of data) {
-    const grid = document.getElementById("weather");
-    const card = document.createElement("div");
-    card.classList.add(
-      "max-w-4xl",
-      "mx-auto",
-      "bg-white",
-      "rounded-2xl",
-      "shadow-2xl",
-      "p-8",
-    );
-    grid.appendChild(card);
-    const titleCard = document.createElement("h2");
-    titleCard.classList.add(
-      "text-xl",
-      "font-bold",
-      "text-center",
-      "text-indigo-800",
-      "mb-8",
-    );
-    titleCard.textContent = cities.city;
-    card.appendChild(titleCard);
-    //temperature
-    const tempCard = document.createElement("p");
-    tempCard.classList.add("mt-2", "text-lime-600", "font-medium");
-    tempCard.textContent = `
-    Temperatura percepita: ${cities.temp} °C`;
-    card.appendChild(tempCard);
-    //wind
-    const windCard = document.createElement("p");
-    windCard.classList.add("mt-2", "text-lime-600", "font-medium");
-    windCard.textContent = `
-    Velocità del vento: ${cities.wind} Km/h`;
-    card.appendChild(windCard);
-    //solar production
-    const production = estimateSolarProduction(cities.temp, 5000);
-    const prodCard = document.createElement("p");
-    prodCard.classList.add("mt-1", "text-emerald-600", "font-bold", "text-sm");
-    prodCard.textContent = `⚡ Produzione stimata: ${Math.round(production)} kW`;
-    card.appendChild(prodCard);
-  }
-}
+            const tempCard = document.createElement("p");
+            tempCard.classList.add("text-lime-600", "font-medium");
+            tempCard.textContent = `Temp: ${cityData.temp} °C`;
+            card.appendChild(tempCard);
 
-//Plant's card
-function renderPlants(plants) {
-  const container = document.getElementById("plants");
-  if (!container) return;
+            const windCard = document.createElement("p");
+            windCard.classList.add("text-lime-600", "font-medium");
+            windCard.textContent = `Vento: ${cityData.wind} Km/h`;
+            card.appendChild(windCard);
 
-  container.innerHTML = "";
+            const production = estimateSolarProduction(cityData.temp, 5000);
+            const prodCard = document.createElement("p");
+            prodCard.classList.add("mt-2", "text-emerald-600", "font-bold", "text-sm", "pt-2", "border-t", "border-gray-100");
+            prodCard.textContent = `⚡ Stima: ${Math.round(production)} kW`;
+            card.appendChild(prodCard);
 
-  const activePlants = plants.filter((p) => p.active);
+            grid.appendChild(card);
+          });
+        }
 
-  if (activePlants.length === 0) {
-    container.innerHTML = `<p>Non ci sono impianti attivi al momento</p>`;
-  }
-  plants.forEach((element) => {
-    const card = document.createElement("div");
-    card.innerHTML = `
-            <h3 class="font-bold text-center">Impianto di: ${element.name}</h3>
-            <p class="mt-2 text-green-600 font-bold">Capacità: ${element.capacity}mwh</p>
-            <p class="mt-2 text-blue-500 font-bold">Status: ${element.active ? "✅" : "⛔"}</p>
+        // Render Card Plants
+        function renderPlants(plants) {
+          const container = document.getElementById("plants");
+          if (!container) return;
+
+          container.innerHTML = "";
+
+          if (plants.length === 0) {
+            container.innerHTML = `<p class="col-span-full text-center text-gray-500">Nessun impianto presente</p>`;
+            return;
+          }
+
+          plants.forEach((element) => {
+            const card = document.createElement("div");
+            // Aggiunte classi per stile coerente e responsive
+            card.classList.add("border", "border-gray-100", "rounded-lg", "p-4", "text-center", "hover:shadow-md", "transition-shadow");
+            
+            const statusColor = element.active ? "text-green-600" : "text-red-500";
+            const statusIcon = element.active ? "✅" : "⛔";
+
+            card.innerHTML = `
+                <h3 class="font-bold text-lg text-gray-800">${element.name}</h3>
+                <p class="mt-2 text-blue-600 font-semibold">Capacità: ${element.capacity} kW</p>
+                <p class="mt-2 ${statusColor} font-bold">Status: ${statusIcon} ${element.active ? 'Attivo' : 'Off'}</p>
             `;
-    container.appendChild(card);
-  });
-}
+            container.appendChild(card);
+          });
+        }
 
-//generate report
-async function generateReport(weatherData, plants) {
-  const report = document.getElementById("report");
-  if (!report) return;
+        // Report
+        async function generateReport(weatherData, plants) {
+          const report = document.getElementById("report");
+          if (!report) return;
 
-  const cities = `${weatherData.map((w) => w.city)}`; //weatherData è un array, non un oggetto. Non puoi fare weatherData.city — devi iterarlo.
-  const temperature = `${weatherData.map((w) => `${w.city} ${w.temp}°C`).join(" | ")}`; //doppio template literals per i w.city e w.temperature
-  const activePlants = plants.filter((p) => p.active);
-  const totalCapacity = plants.reduce((sum, p) => sum + p.capacity, 0);
+          const cities = weatherData.map((w) => w.city).join(", ");
+          const temperature = weatherData.map((w) => `${w.city}: ${w.temp}°C`).join(" | ");
+          const activePlants = plants.filter((p) => p.active);
+          const totalCapacity = plants.reduce((sum, p) => sum + p.capacity, 0);
 
-  //total report
-  report.innerHTML = `
-  <h3 class= "text-center font-bold">- 🔋 ENERGY REPORT 🔋 -</h3>
-  <p>Città: ${cities}</p>
-  <p>Temperature monitorate: ${temperature}</p>
-  <p>Impianti attivi: ${activePlants.length}/${plants.length} | ${activePlants.map((p) => p.name).join(", ")}</p>
-  <p>Capacità totale: ${totalCapacity} kW</p>
-`;
-}
+          report.innerHTML = `
+            <h3 class="text-center font-bold mb-2 text-green-300">- 🔋 ENERGY REPORT 🔋 -</h3>
+            <p class="mb-1"><strong class="text-green-500">Città:</strong> ${cities}</p>
+            <p class="mb-1"><strong class="text-green-500">Temperature:</strong> ${temperature}</p>
+            <p class="mb-1"><strong class="text-green-500">Impianti:</strong> ${activePlants.length}/${plants.length} attivi (${activePlants.map((p) => p.name).join(", ") || "Nessuno"})</p>
+            <p><strong class="text-green-500">Capacità Totale:</strong> ${totalCapacity} kW</p>
+          `;
+        }
 
-//primary function
-async function init() {
-  try {
+        // Initialization
+        async function init() {
+          try {
+            const weatherData = await Promise.all([
+              getWeather(46.49, 11.35, "Bolzano"),
+              getWeather(46.07, 11.12, "Trento"),
+              getWeather(46.67, 11.16, "Merano"),
+            ]);
 
-    const weatherData = await Promise.all([
-      getWeather(46.49, 11.35, "Bolzano"),
-      getWeather(46.07, 11.12, "Trento"),
-      getWeather(46.67, 11.16, "Merano"),
-    ]);
+            renderWeather(weatherData);
+            renderPlants(plants);
+            generateReport(weatherData, plants);
+          } catch (error) {
+            console.error("Errore critico:", error.message);
+            document.getElementById('report').innerHTML = `<p class="text-red-400">Errore nel caricamento dati: ${error.message}</p>`;
+          }
+        }
 
-    renderWeather(weatherData);
-    renderPlants(plants);
-    generateReport(weatherData, plants);
-  } catch (error) {
-    console.error("Errore:", error.message);
-  }
-}
-
-init();
+        init();
