@@ -7,12 +7,14 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-50 p-8">
-    <div class="max-w-4xl mx-auto">
-        <h1 class="text-3xl font-bold mb-6">⚡ Energy Dashboard</h1>
+        <div class="max-w-7xl w-full mx-auto">
+        <h1 class="text-2xl sm:text-3xl font-bold mb-6 text-center sm:text-left">⚡ Energy Dashboard</h1>
         
-        <div id="weather" class="grid grid-cols-3 gap-4 mb-8"></div>
-        <div id="plants" class="bg-white rounded-xl p-6 shadow"></div>
-        <div id="report" class="bg-gray-800 text-green-400 p-4 rounded-xl mt-8 font-mono text-sm"></div>
+        <div id="weather" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
+        
+        <div id="plants" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-white rounded-xl p-6 shadow mb-8"></div>
+
+        <div id="report" class="bg-gray-800 text-green-400 p-4 rounded-xl font-mono text-xs sm:text-sm break-words whitespace-normal"></div>
     </div>
     
     <script src="script.js"></script>
